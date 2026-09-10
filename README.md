@@ -61,17 +61,17 @@ human-in-the-loop interrupt/resume via checkpointing.
                                            +-> :hold               (:hard? true)
 ```
 
-- `src/advertising_marketing/store.cljc` — `Store` protocol +
+- `src/advertising_marketing/store.kotoba` — `Store` protocol +
   `MemStore`: registered campaigns, committed records, an append-only
   audit ledger.
-- `src/advertising_marketing/advisor.cljc` — `Advisor` protocol;
+- `src/advertising_marketing/advisor.kotoba` — `Advisor` protocol;
   `mock-advisor` (deterministic, default) proposes a campaign
   operation from a request; `llm-advisor` wraps a
   `langchain.model/ChatModel` — either way the advisor only ever
   produces a `:propose`-effect proposal, never a committed record, and
   LLM parse failures always yield `confidence 0.0` (forces escalation,
   never fabricated confidence).
-- `src/advertising_marketing/governor.cljc` —
+- `src/advertising_marketing/governor.kotoba` —
   `AdvertisingMarketingGovernor/check`: a pure function, wired as its
   own `:govern` node. Hard invariants (unregistered campaign, a
   proposal whose `:effect` isn't `:propose`) always route to `:hold`.
@@ -82,7 +82,7 @@ human-in-the-loop interrupt/resume via checkpointing.
   (`actor/approve!`), matching the README's robotics-premise statement
   that publishing a claim without substantiation review and targeting
   a protected-category audience segment always require human sign-off.
-- `src/advertising_marketing/actor.cljc` — `build-graph`,
+- `src/advertising_marketing/actor.kotoba` — `build-graph`,
   `run-request!`, `approve!`: the `langgraph.graph/state-graph` wiring
   itself.
 
