@@ -1,0 +1,42 @@
+;; What this vertical's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:physics` runs it.
+;;
+;; README "Robotics premise": a print-and-signage robot performs physical
+;; proof printing and signage installation support (ISCO 2431, advertising
+;; and marketing professionals). Its physical work: raising a sign panel to
+;; its wall-mounting height, carrying printed panels on a cart to the
+;; installation site, and the steel hanger rods that carry suspended signs.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isco-2431"
+ :cases
+ [{:id :sign-panel-to-mount-height
+   :kind :manipulator
+   :procedure "arm raises a printed sign panel from the cart to its wall-mounting height for the installer to fix"
+   :params {:l1-m 0.60 :l2-m 0.55 :m1-kg 8.0 :m2-kg 6.0
+            :from [0.70 0.00] :to [0.40 1.00] :duration-s 3.0 :steps 500}
+   :sweep {:param :payload-kg :values [2.0 5.0 8.0 12.0 16.0]}
+   :quantity :peak-tau1-nm
+   :limit {:max 350.0 :basis "estimate: continuous shoulder torque of a 20 kg-payload class industrial arm"}
+   :boundary {:lo 0.5 :hi 60.0}}
+  {:id :panel-cart-to-site
+   :kind :transport
+   :procedure "AMR carries a cart of printed sign panels standing upright (taller panels raise the centre of gravity) from the print room to the installation site in the store"
+   :params {:mass-kg 60.0 :payload-kg 40.0 :distance-m 50.0 :v-max-mps 1.0 :a-max-mps2 0.5
+            :brake-decel-mps2 1.0 :drive-force-n 120.0 :crr 0.02
+            :support-half-length-m 0.25}
+   :sweep {:param :cog-height-m :values [0.6 0.9 1.2 1.5 1.8]}
+   :quantity :min-tipover-margin
+   :limit {:min 0.3 :basis "estimate: keep 30 % of the static tip-over moment in reserve for tall panels catching drafts and floor joints"}
+   :boundary {:lo 0.3 :hi 2.5}}
+  {:id :hanger-rod-tension
+   :kind :material
+   :procedure "M6 steel hanger rod (property class 4.6) that suspends a ceiling sign is pulled in tension"
+   :params {:length-m 0.50 :area-m2 2.01e-5 :youngs-modulus-pa 205.0e9
+            :yield-stress-pa 240.0e6 :hardening-pa 1.0e9 :density-kg-m3 7850.0}
+   :sweep {:param :max-force-n :values [1000.0 3000.0 4500.0 5000.0 6000.0]}
+   :quantity :final-strain
+   :limit {:max 0.002 :basis "estimate: rod must stay within ~0.2 % strain (offset-yield convention); lower yield 240 MPa for property class 4.6 per ISO 898-1, stress area of M6 20.1 mm2 per ISO 898-1"}
+   :boundary {:lo 500.0 :hi 6000.0}}]}
